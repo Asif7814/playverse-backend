@@ -1,0 +1,40 @@
+{
+    "name": "testing-cicd-v1",
+    "version": "1.0.0",
+    "description": "test purposes",
+    "main": "dist/index.js",
+    "type": "module",
+    "scripts": {
+        "dev": "tsc -w & nodemon dist/index.js",
+        "build": "tsc",
+        "start": "node dist/index.js",
+        "test": "echo 'No tests yet'",
+        "lint": "echo 'No linting yet'",
+        "format": "prettier --write ."
+    },
+    "author": "Asif Ashadullah",
+    "license": "ISC",
+    "dependencies": {
+        "bcryptjs": "^2.4.3",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.5",
+        "express": "^4.19.2",
+        "express-mongo-sanitize": "^2.2.0",
+        "jsonwebtoken": "^9.0.2",
+        "mongoose": "^8.5.1",
+        "passport": "^0.7.0",
+        "passport-google-oauth20": "^2.0.0",
+        "xss": "^1.0.15"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.17",
+        "@types/express": "^5.0.0",
+        "@types/jsonwebtoken": "^9.0.7",
+        "@types/node": "^22.8.6",
+        "jest": "^29.7.0",
+        "nodemon": "^3.1.3",
+        "prettier": "^3.3.3",
+        "supertest": "^7.0.0",
+        "typescript": "^5.6.3"
+    }
+}
