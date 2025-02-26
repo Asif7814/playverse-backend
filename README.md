@@ -1,6 +1,6 @@
 ###### Project Status: 🚧 WIP
 
-# Project: Playverse Backend
+# Project: PlayVerse Backend
 
 PlayVerse is a mobile game tracker app designed to help gamers organize and enhance their gaming experience. Whether you’re exploring new titles or revisiting old favorites, PlayVerse makes it easy to keep track of the games you’ve played, monitor playtime, and dive deeper into your gaming stats.
 
@@ -46,13 +46,13 @@ Get personalized game recommendations, compare games, and engage in conversation
 1. **Clone the repository:**
 
     ```bash
-    git clone git@github.com:template.git
+    git clone git@github.com:playverse-backend.git
     ```
 
 2. **Navigate to the project directory:**
 
     ```bash
-    cd template
+    cd playverse-backend
     ```
 
 3. **Install dependencies:**
