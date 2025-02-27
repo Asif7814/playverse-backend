@@ -1,7 +1,7 @@
 {
-    "name": "testing-cicd-v1",
+    "name": "playverse-backend",
     "version": "1.0.0",
-    "description": "test purposes",
+    "description": "PlayVerse is a mobile game tracker app designed to help gamers organize and enhance their gaming experience. Whether you’re exploring new titles or revisiting old favorites, PlayVerse makes it easy to keep track of the games you’ve played, monitor playtime, and dive deeper into your gaming stats.",
     "main": "dist/index.js",
     "type": "module",
     "scripts": {

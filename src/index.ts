@@ -6,7 +6,9 @@ import "dotenv/config";
 
 import { connectDB } from "./config/db.js";
 import sanitizeBody from "./middlewares/sanitizeBody.js";
-import tempRouter from "./modules/temps/routes.js";
+
+import gameRouter from "./modules/games/routes.js";
+
 import errorHandler from "./utils/errors.js";
 
 const app = express();
@@ -25,7 +27,7 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 // ROUTES
-app.use("/api/temp", tempRouter);
+app.use("/api/games", gameRouter);
 
 app.use(errorHandler);
 
