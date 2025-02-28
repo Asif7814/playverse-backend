@@ -19,7 +19,7 @@ const searchGames: Controller = async (req, res, next) => {
     }
 };
 
-// @desc    Get an individual game by its id
+// @desc    Get an individual game's details by the game id
 // @route   GET /api/games/:id
 // @access  Public
 const getGameByID: Controller = async (
