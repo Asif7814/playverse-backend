@@ -49,7 +49,7 @@ const getGameByID = async (id: string) => {
             Authorization: `Bearer ${ACCESS_TOKEN}`,
             "Content-Type": "application/json",
         },
-        body: `fields name, cover.url, game_type.type, summary, platforms.name, platforms.alternative_name, genres.name,  
+        body: `fields name, cover.url, game_type.type, summary, platforms.name, platforms.alternative_name, platforms.abbreviation, genres.name,  
         release_dates.human, involved_companies.developer, involved_companies.publisher, involved_companies.company.name, videos.name, videos.video_id, screenshots.url;
                 where id = ${id};`,
     });
@@ -73,44 +73,60 @@ const getGameByID = async (id: string) => {
                 videos,
                 screenshots,
             }) => {
-                const coverImage = `https:${cover.url}`;
-                const gameType = game_type.type;
-                const updatedPlatforms = platforms.map(
-                    ({ name, alternative_name }) => {
-                        let platformName = name;
+                const coverImage = cover ? `https:${cover.url}` : null;
 
-                        if (name.includes("PC")) {
-                            platformName = "PC";
-                        }
+                const gameType = game_type ? game_type.type : null;
 
-                        if (name.includes("PlayStation")) {
-                            platformName = alternative_name;
-                        }
+                const updatedPlatforms = platforms
+                    ? platforms.map(({ name, abbreviation }) => {
+                          let platformName = abbreviation;
 
-                        return platformName;
-                    },
-                );
-                const updatedGenres = genres.map(({ name }) => name);
-                const releaseDate = release_dates[0].human;
+                          if (name.includes("Xbox")) {
+                              platformName = name;
+                          }
+
+                          return platformName;
+                      })
+                    : null;
+
+                const updatedGenres = genres
+                    ? genres.map(({ name }) => name)
+                    : null;
+
+                const releaseDate = release_dates
+                    ? release_dates[0].human
+                    : null;
 
                 const developers = involved_companies
-                    .filter(({ developer }) => developer)
-                    .map(({ id, company }) => ({ id, name: company.name }));
+                    ? involved_companies
+                          .filter(({ developer }) => developer)
+                          .map(({ id, company }) => ({
+                              id,
+                              name: company.name,
+                          }))
+                    : null;
 
                 const publishers = involved_companies
-                    .filter(({ publisher }) => publisher)
-                    .map(({ id, company }) => ({ id, name: company.name }));
+                    ? involved_companies
+                          .filter(({ publisher }) => publisher)
+                          .map(({ id, company }) => ({
+                              id,
+                              name: company.name,
+                          }))
+                    : null;
 
                 const trailers = videos
-                    .filter(({ name }) => name.includes("Trailer"))
-                    .map(({ id, video_id }) => ({
-                        id,
-                        video: `https://www.youtube.com/embed/${video_id}`,
-                    }));
+                    ? videos
+                          .filter(({ name }) => name.includes("Trailer"))
+                          .map(({ id, video_id }) => ({
+                              id,
+                              video: `https://www.youtube.com/embed/${video_id}`,
+                          }))
+                    : null;
 
-                const screenshotsURL = screenshots.map(
-                    ({ url }) => `https:${url}`,
-                );
+                const screenshotsURL = screenshots
+                    ? screenshots.map(({ url }) => `https:${url}`)
+                    : null;
 
                 const timeToBeatRes = await fetch(
                     `${BASE_URL}/game_time_to_beats`,
@@ -128,15 +144,15 @@ const getGameByID = async (id: string) => {
 
                 const timeToBeatData = await timeToBeatRes.json();
 
-                const timeToBeatHastily = timeToBeatData[0].hastily
+                const timeToBeatHastily = timeToBeatData[0]?.hastily
                     ? Math.round(timeToBeatData[0].hastily / 60 / 60) // converting seconds to hours
                     : null;
 
-                const timeToBeatNormally = timeToBeatData[0].normally
+                const timeToBeatNormally = timeToBeatData[0]?.normally
                     ? Math.round(timeToBeatData[0].normally / 60 / 60) // converting seconds to hours
                     : null;
 
-                const timeToBeatCompletely = timeToBeatData[0].completely
+                const timeToBeatCompletely = timeToBeatData[0]?.completely
                     ? Math.round(timeToBeatData[0].completely / 60 / 60) // converting seconds to hours
                     : null;
 
