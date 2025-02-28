@@ -1,10 +1,13 @@
-import gameService from "./services.js";
-import { Controller, ParamsWithId } from "../../types/controllers.js";
 import { Request } from "express";
 
-// @desc    Create a new game
-// @route   POST /api/game
-// @access  Private
+import gameService from "./services.js";
+import { Controller, ParamsWithId } from "../../types/controllers.js";
+
+import { IGameFilters } from "./types/game.types.js";
+
+// @desc    Add an array of new games to db
+// @route   POST /api/games
+// @access  Private (Admin Only)
 const createGames: Controller = async (req, res, next) => {
     try {
         const newGame = await gameService.createGames(req.body);
@@ -17,12 +20,13 @@ const createGames: Controller = async (req, res, next) => {
     }
 };
 
-// @desc    Get all games
+// @desc    Search for all games, optionally pass in query params to filter
 // @route   GET /api/games
 // @access  Public
-const getAllGames: Controller = async (_req, res, next) => {
+const getAllGames: Controller = async (req, res, next) => {
     try {
-        const games = await gameService.getAllGames();
+        const filters = req.query as IGameFilters;
+        const games = await gameService.getAllGames(filters);
 
         res.status(200).json({
             data: games,
@@ -32,7 +36,7 @@ const getAllGames: Controller = async (_req, res, next) => {
     }
 };
 
-// @desc    Get an individual game by their id
+// @desc    Get an individual game by its id
 // @route   GET /api/games/:id
 // @access  Public
 const getGameByID: Controller = async (
@@ -54,7 +58,7 @@ const getGameByID: Controller = async (
 
 // @desc    Update a part of an individual game
 // @route   PATCH /api/games/:id
-// @access  Private
+// @access  Private (Admin Only)
 const updateGame: Controller = async (
     req: Request<ParamsWithId>,
     res,
@@ -72,9 +76,9 @@ const updateGame: Controller = async (
     }
 };
 
-// @desc    Delete an individual game
+// @desc    Delete an individual game from the db
 // @route   DELETE /api/games/:id
-// @access  Private
+// @access  Private (Admin Only)
 const deleteGame: Controller = async (
     req: Request<ParamsWithId>,
     res,

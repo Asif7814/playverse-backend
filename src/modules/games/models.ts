@@ -1,15 +1,6 @@
 import { model, Schema, Document } from "mongoose";
-
-export interface IGame extends Document {
-    title: string;
-    description: string;
-    platforms: string[];
-    genres: string[];
-    releaseDate: Date;
-    coverImage: string;
-    developer: string;
-    publisher: string;
-}
+import { IGame } from "./types/game.types.js";
+import { Platform, Genre } from "./enums/game.enums.js";
 
 const gameSchema = new Schema<IGame>(
     {
@@ -24,10 +15,12 @@ const gameSchema = new Schema<IGame>(
         platforms: {
             type: [String],
             required: true,
+            enum: Object.values(Platform),
         },
         genres: {
             type: [String],
             required: true,
+            enum: Object.values(Genre),
         },
         releaseDate: {
             type: Date,

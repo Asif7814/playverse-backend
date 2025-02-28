@@ -1,5 +1,6 @@
-import Game, { IGame } from "./models.js";
+import Game from "./models.js";
 import { BadRequestError, NotFoundError } from "../../utils/errors.js";
+import { IGame, IGameFilters } from "./types/game.types.js";
 
 const createGames = async (newGames: IGame[]): Promise<IGame[]> => {
     const addedGames: IGame[] = [];
@@ -17,7 +18,43 @@ const createGames = async (newGames: IGame[]): Promise<IGame[]> => {
     return addedGames;
 };
 
-const getAllGames = async (): Promise<IGame[]> => await Game.find();
+const getAllGames = async (filters: IGameFilters): Promise<IGame[]> => {
+    const query: any = {};
+
+    // Title (Partial and Case-Insensitive)
+    if (filters.title) query.title = { $regex: filters.title, $options: "i" };
+
+    // Platforms and Genres
+    if (filters.platform) {
+        query.platforms = { $in: [filters.platform] };
+    }
+
+    if (filters.genre) {
+        query.genres = { $in: [filters.genre] };
+    }
+
+    // Release Date (Custom Date Range)
+    if (filters.startDate || filters.endDate) {
+        query.releaseDate = {};
+
+        // If startDate is provided, use it as the lower bound
+        if (filters.startDate) {
+            query.releaseDate.$gte = new Date(filters.startDate);
+        }
+
+        // If endDate is provided, use it as the upper bound
+        if (filters.endDate) {
+            query.releaseDate.$lt = new Date(filters.endDate);
+        }
+    }
+
+    // Developer and Publisher
+    if (filters.developer) query.developer = filters.developer;
+    if (filters.publisher) query.publisher = filters.publisher;
+
+    const foundGames = await Game.find(query);
+    return foundGames;
+};
 
 const getGameByID = async (id: string): Promise<IGame> => {
     const selectedGame = await Game.findById(id);
