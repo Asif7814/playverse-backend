@@ -1,9 +1,10 @@
-import { model, Schema, Document } from "mongoose";
+import { model, Schema } from "mongoose";
 import { IGame } from "./types/game.types.js";
 import { Platform, Genre } from "./enums/game.enums.js";
 
 const gameSchema = new Schema<IGame>(
     {
+        // --- MAIN FIELDS ---
         title: {
             type: String,
             required: true,
@@ -26,10 +27,6 @@ const gameSchema = new Schema<IGame>(
             type: Date,
             required: true,
         },
-        coverImage: {
-            type: String,
-            required: true,
-        },
         developer: {
             type: String,
             required: true,
@@ -38,9 +35,49 @@ const gameSchema = new Schema<IGame>(
             type: String,
             required: true,
         },
+        series: {
+            type: String,
+            required: true,
+        },
+        editions: {
+            type: [String],
+        },
+        ageRating: {
+            type: String,
+            required: true,
+            enum: ["E", "E10+", "T", "M", "A", "RP"],
+        },
+
+        // --- MEDIA FIELDS ---
+        coverImage: {
+            type: String,
+            required: true,
+        },
+        trailer: {
+            type: String,
+            required: true,
+        },
+        screenshots: {
+            type: [String],
+            required: true,
+        },
+
+        // --- ADDITIONAL FIELDS ---
+        estimatedTimeForStory: {
+            type: Number,
+            required: true,
+        },
+        estimatedTimeForStoryAndExtra: {
+            type: Number,
+            required: true,
+        },
+        estimatedTimeForCompletionist: {
+            type: Number,
+            required: true,
+        },
     },
     {
-        timestamps: true,
+        timestamps: false,
         versionKey: false,
     },
 );

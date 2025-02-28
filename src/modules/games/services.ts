@@ -48,6 +48,9 @@ const getAllGames = async (filters: IGameFilters): Promise<IGame[]> => {
         }
     }
 
+    // Age Rating
+    if (filters.ageRating) query.ageRating = filters.ageRating;
+
     // Developer and Publisher
     if (filters.developer) query.developer = filters.developer;
     if (filters.publisher) query.publisher = filters.publisher;
