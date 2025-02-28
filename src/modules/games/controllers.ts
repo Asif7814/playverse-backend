@@ -3,30 +3,13 @@ import { Request } from "express";
 import gameService from "./services.js";
 import { Controller, ParamsWithId } from "../../types/controllers.js";
 
-import { IGameFilters } from "./types/game.types.js";
-
-// @desc    Add an array of new games to db
-// @route   POST /api/games
-// @access  Private (Admin Only)
-const createGames: Controller = async (req, res, next) => {
-    try {
-        const newGame = await gameService.createGames(req.body);
-
-        res.status(201).json({
-            data: newGame,
-        });
-    } catch (err) {
-        next(err);
-    }
-};
-
-// @desc    Search for all games, optionally pass in query params to filter
+// @desc    Search for all games by their title
 // @route   GET /api/games
 // @access  Public
-const getAllGames: Controller = async (req, res, next) => {
+const searchGames: Controller = async (req, res, next) => {
     try {
-        const filters = req.query as IGameFilters;
-        const games = await gameService.getAllGames(filters);
+        const { title } = req.query as { title: string };
+        const games = await gameService.searchGames(title);
 
         res.status(200).json({
             data: games,
@@ -56,50 +39,7 @@ const getGameByID: Controller = async (
     }
 };
 
-// @desc    Update a part of an individual game
-// @route   PATCH /api/games/:id
-// @access  Private (Admin Only)
-const updateGame: Controller = async (
-    req: Request<ParamsWithId>,
-    res,
-    next,
-) => {
-    try {
-        const { id } = req.params;
-        const updatedGame = await gameService.updateGame(id, req.body);
-
-        res.status(200).json({
-            data: updatedGame,
-        });
-    } catch (err) {
-        next(err);
-    }
-};
-
-// @desc    Delete an individual game from the db
-// @route   DELETE /api/games/:id
-// @access  Private (Admin Only)
-const deleteGame: Controller = async (
-    req: Request<ParamsWithId>,
-    res,
-    next,
-) => {
-    try {
-        const { id } = req.params;
-        const deletedGame = await gameService.deleteGame(id);
-
-        res.status(200).json({
-            data: deletedGame,
-        });
-    } catch (err) {
-        next(err);
-    }
-};
-
 export default {
-    createGames,
-    getAllGames,
+    searchGames,
     getGameByID,
-    updateGame,
-    deleteGame,
 };

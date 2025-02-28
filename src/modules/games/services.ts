@@ -1,103 +1,48 @@
-import Game from "./models.js";
 import { BadRequestError, NotFoundError } from "../../utils/errors.js";
-import { IGame, IGameFilters } from "./types/game.types.js";
 
-const createGames = async (newGames: IGame[]): Promise<IGame[]> => {
-    const addedGames: IGame[] = [];
+const BASE_URL = process.env.IGDB_BASE_URL;
+const CLIENT_ID = process.env.IGDB_CLIENT_ID;
+const ACCESS_TOKEN = process.env.IGDB_ACCESS_TOKEN;
 
-    for (const game of newGames) {
-        const createdGame = await Game.create(game);
-
-        if (!createdGame) {
-            throw new BadRequestError("Game not created");
-        }
-
-        addedGames.push(createdGame);
-    }
-
-    return addedGames;
-};
-
-const getAllGames = async (filters: IGameFilters): Promise<IGame[]> => {
-    const query: any = {};
-
-    // Title (Partial and Case-Insensitive)
-    if (filters.title) query.title = { $regex: filters.title, $options: "i" };
-
-    // Platforms and Genres
-    if (filters.platform) {
-        query.platforms = { $in: [filters.platform] };
-    }
-
-    if (filters.genre) {
-        query.genres = { $in: [filters.genre] };
-    }
-
-    // Release Date (Custom Date Range)
-    if (filters.startDate || filters.endDate) {
-        query.releaseDate = {};
-
-        // If startDate is provided, use it as the lower bound
-        if (filters.startDate) {
-            query.releaseDate.$gte = new Date(filters.startDate);
-        }
-
-        // If endDate is provided, use it as the upper bound
-        if (filters.endDate) {
-            query.releaseDate.$lt = new Date(filters.endDate);
-        }
-    }
-
-    // Age Rating
-    if (filters.ageRating) query.ageRating = filters.ageRating;
-
-    // Developer and Publisher
-    if (filters.developer) query.developer = filters.developer;
-    if (filters.publisher) query.publisher = filters.publisher;
-
-    const foundGames = await Game.find(query);
-    return foundGames;
-};
-
-const getGameByID = async (id: string): Promise<IGame> => {
-    const selectedGame = await Game.findById(id);
-
-    if (!selectedGame) {
-        throw new NotFoundError("Game not found");
-    }
-
-    return selectedGame;
-};
-
-const updateGame = async (
-    id: string,
-    updatedValue: Partial<IGame>,
-): Promise<IGame> => {
-    const newGame = await Game.findByIdAndUpdate(id, updatedValue, {
-        new: true,
+const searchGames = async (searchQuery: String) => {
+    const res = await fetch(`${BASE_URL}/games`, {
+        method: "POST",
+        headers: {
+            "Client-ID": CLIENT_ID,
+            Authorization: `Bearer ${ACCESS_TOKEN}`,
+            "Content-Type": "application/json",
+        },
+        body: `search "${searchQuery}"; 
+               fields name, cover.url, game_type.type;`,
     });
 
-    if (!newGame) {
-        throw new NotFoundError("Game not found");
-    }
+    if (!res.ok) throw new BadRequestError("Failed to fetch data from IGDB");
 
-    return newGame;
+    const data = await res.json();
+
+    // Filter out games that are of type "Pack"
+    const filteredGames = await data.filter((game) =>
+        game.game_type.type !== "Pack" ? game : null,
+    );
+
+    // If no games are found, throw an error
+    if (filteredGames.length == 0)
+        throw new NotFoundError("No games were found");
+
+    // Replace the cover data with just the full cover image URL
+    const games = await filteredGames.map(({ id, name, cover, game_type }) => ({
+        id,
+        type: game_type.type,
+        name,
+        coverImage: `https:${cover.url}`,
+    }));
+
+    return games;
 };
 
-const deleteGame = async (id: string): Promise<IGame> => {
-    const deletedGame = await Game.findByIdAndDelete(id);
-
-    if (!deletedGame) {
-        throw new NotFoundError("Game not found");
-    }
-
-    return deletedGame;
-};
+const getGameByID = async (id: string) => {};
 
 export default {
-    createGames,
-    getAllGames,
+    searchGames,
     getGameByID,
-    updateGame,
-    deleteGame,
 };
