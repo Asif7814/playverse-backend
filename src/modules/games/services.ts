@@ -19,6 +19,7 @@ const searchGames = async (searchQuery: String) => {
     if (!res.ok) throw new BadRequestError("Failed to fetch data from IGDB");
 
     const data = await res.json();
+    console.log(data);
 
     // Filter out games that are of type "Pack"
     const filteredGames = await data.filter((game) =>
@@ -34,7 +35,7 @@ const searchGames = async (searchQuery: String) => {
         id,
         type: game_type.type,
         name,
-        coverImage: `https:${cover.url}`,
+        coverImage: cover ? `https:${cover.url}` : null,
     }));
 
     return games;
@@ -57,72 +58,109 @@ const getGameByID = async (id: string) => {
 
     const data = await res.json();
 
-    const game = data.map(
-        ({
-            id,
-            name,
-            cover,
-            game_type,
-            summary,
-            platforms,
-            genres,
-            release_dates,
-            involved_companies,
-            videos,
-            screenshots,
-        }) => {
-            const coverImage = `https:${cover.url}`;
-            const gameType = game_type.type;
-            const updatedPlatforms = platforms.map(
-                ({ name, alternative_name }) => {
-                    let platformName = name;
-
-                    if (name.includes("PC")) {
-                        platformName = "PC";
-                    }
-
-                    if (name.includes("PlayStation")) {
-                        platformName = alternative_name;
-                    }
-
-                    return platformName;
-                },
-            );
-            const updatedGenres = genres.map(({ name }) => name);
-            const releaseDate = release_dates[0].human;
-
-            const developers = involved_companies
-                .filter(({ developer }) => developer)
-                .map(({ id, company }) => ({ id, name: company.name }));
-
-            const publishers = involved_companies
-                .filter(({ publisher }) => publisher)
-                .map(({ id, company }) => ({ id, name: company.name }));
-
-            const trailers = videos
-                .filter(({ name }) => name.includes("Trailer"))
-                .map(({ id, video_id }) => ({
-                    id,
-                    video: `https://www.youtube.com/embed/${video_id}`,
-                }));
-
-            const screenshotsURL = screenshots.map(({ url }) => `https:${url}`);
-
-            return {
+    const game = await Promise.all(
+        data.map(
+            async ({
                 id,
                 name,
-                coverImage,
-                gameType,
-                description: summary,
-                platforms: updatedPlatforms,
-                genres: updatedGenres,
-                releaseDate: new Date(releaseDate),
-                developers,
-                publishers,
-                trailers,
-                screenshotsURL,
-            };
-        },
+                cover,
+                game_type,
+                summary,
+                platforms,
+                genres,
+                release_dates,
+                involved_companies,
+                videos,
+                screenshots,
+            }) => {
+                const coverImage = `https:${cover.url}`;
+                const gameType = game_type.type;
+                const updatedPlatforms = platforms.map(
+                    ({ name, alternative_name }) => {
+                        let platformName = name;
+
+                        if (name.includes("PC")) {
+                            platformName = "PC";
+                        }
+
+                        if (name.includes("PlayStation")) {
+                            platformName = alternative_name;
+                        }
+
+                        return platformName;
+                    },
+                );
+                const updatedGenres = genres.map(({ name }) => name);
+                const releaseDate = release_dates[0].human;
+
+                const developers = involved_companies
+                    .filter(({ developer }) => developer)
+                    .map(({ id, company }) => ({ id, name: company.name }));
+
+                const publishers = involved_companies
+                    .filter(({ publisher }) => publisher)
+                    .map(({ id, company }) => ({ id, name: company.name }));
+
+                const trailers = videos
+                    .filter(({ name }) => name.includes("Trailer"))
+                    .map(({ id, video_id }) => ({
+                        id,
+                        video: `https://www.youtube.com/embed/${video_id}`,
+                    }));
+
+                const screenshotsURL = screenshots.map(
+                    ({ url }) => `https:${url}`,
+                );
+
+                const timeToBeatRes = await fetch(
+                    `${BASE_URL}/game_time_to_beats`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Client-ID": CLIENT_ID,
+                            Authorization: `Bearer ${ACCESS_TOKEN}`,
+                            "Content-Type": "application/json",
+                        },
+                        body: `fields hastily, normally, completely;
+                            where game_id = ${id};`,
+                    },
+                );
+
+                const timeToBeatData = await timeToBeatRes.json();
+
+                const timeToBeatHastily = timeToBeatData[0].hastily
+                    ? Math.round(timeToBeatData[0].hastily / 60 / 60) // converting seconds to hours
+                    : null;
+
+                const timeToBeatNormally = timeToBeatData[0].normally
+                    ? Math.round(timeToBeatData[0].normally / 60 / 60) // converting seconds to hours
+                    : null;
+
+                const timeToBeatCompletely = timeToBeatData[0].completely
+                    ? Math.round(timeToBeatData[0].completely / 60 / 60) // converting seconds to hours
+                    : null;
+
+                return {
+                    id,
+                    name,
+                    coverImage,
+                    gameType,
+                    description: summary,
+                    platforms: updatedPlatforms,
+                    genres: updatedGenres,
+                    releaseDate: new Date(releaseDate),
+                    developers,
+                    publishers,
+                    trailers,
+                    screenshotsURL,
+                    estimatedTimeToBeat: {
+                        story: timeToBeatHastily,
+                        storyAndExtras: timeToBeatNormally,
+                        completionist: timeToBeatCompletely,
+                    },
+                };
+            },
+        ),
     );
 
     return game;
