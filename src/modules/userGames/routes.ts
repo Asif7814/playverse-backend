@@ -10,6 +10,9 @@ userGameRouter.post("/", userGameController.createUserGame);
 // R - Read all
 userGameRouter.get("/", userGameController.getAllUserGames);
 
+// R - Read all with search query
+userGameRouter.get("/search", userGameController.searchUserGames);
+
 // R - Read one
 userGameRouter.get("/:id", userGameController.getUserGameByID);
 

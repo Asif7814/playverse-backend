@@ -22,10 +22,26 @@ const createUserGame: Controller = async (req, res, next) => {
 // @access  Public
 const getAllUserGames: Controller = async (_req, res, next) => {
     try {
-        const UserGames = await UserGameService.getAllUserGames();
+        const userGames = await UserGameService.getAllUserGames();
 
         res.status(200).json({
-            data: UserGames,
+            data: userGames,
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc    Get all games from the user's library that match the search query
+// @route   GET /api/UserGames/search?query=searchQuery
+// @access  Public
+const searchUserGames: Controller = async (req, res, next) => {
+    try {
+        const { name } = req.query as { name: string };
+        const userGames = await UserGameService.searchUserGames(name);
+
+        res.status(200).json({
+            data: userGames,
         });
     } catch (err) {
         next(err);
@@ -42,10 +58,10 @@ const getUserGameByID: Controller = async (
 ) => {
     try {
         const { id } = req.params;
-        const UserGame = await UserGameService.getUserGameByID(id);
+        const userGame = await UserGameService.getUserGameByID(id);
 
         res.status(200).json({
-            data: UserGame,
+            data: userGame,
         });
     } catch (err) {
         next(err);
@@ -98,6 +114,7 @@ const deleteUserGame: Controller = async (
 export default {
     createUserGame,
     getAllUserGames,
+    searchUserGames,
     getUserGameByID,
     updateUserGame,
     deleteUserGame,

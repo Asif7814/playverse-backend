@@ -23,6 +23,20 @@ const createUserGame = async (newUserGame: IUserGame): Promise<IUserGame> => {
 
 const getAllUserGames = async (): Promise<IUserGame[]> => await UserGame.find();
 
+const searchUserGames = async (searchQuery: string): Promise<IUserGame[]> => {
+    const foundUserGames = await UserGame.find({
+        "game.name": { $regex: searchQuery, $options: "i" },
+    });
+
+    if (!foundUserGames) {
+        throw new NotFoundError(
+            `No games with title "${searchQuery}" found in library`,
+        );
+    }
+
+    return foundUserGames;
+};
+
 const getUserGameByID = async (id: string): Promise<IUserGame> => {
     const selectedUserGame = await UserGame.findById(id);
 
@@ -61,6 +75,7 @@ const deleteUserGame = async (id: string): Promise<IUserGame> => {
 export default {
     createUserGame,
     getAllUserGames,
+    searchUserGames,
     getUserGameByID,
     updateUserGame,
     deleteUserGame,
