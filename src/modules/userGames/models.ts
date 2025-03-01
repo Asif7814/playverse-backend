@@ -120,6 +120,7 @@ export interface IUserGame extends Document {
     hoursPlayed?: number;
     dateCompleted?: Date;
     collections?: string[];
+    markedAsFavourite: boolean;
     rating?: number;
     review?: string;
 }
@@ -174,6 +175,11 @@ const userGameSchema = new Schema<IUserGame>(
         collections: {
             type: [String],
             required: false,
+        },
+        markedAsFavourite: {
+            type: Boolean,
+            required: true,
+            default: false,
         },
         rating: {
             type: Number,
