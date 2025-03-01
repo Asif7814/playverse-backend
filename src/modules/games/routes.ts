@@ -4,8 +4,11 @@ import gameController from "./controllers.js";
 
 const gameRouter = Router();
 
-// R - Read all
-gameRouter.get("/", gameController.searchGames);
+// R - Get all games by filters
+gameRouter.get("/", gameController.getAllGames);
+
+// R - Search for games by their title
+gameRouter.get("/search", gameController.searchGames);
 
 // R - Read one
 gameRouter.get("/:id", gameController.getGameByID);

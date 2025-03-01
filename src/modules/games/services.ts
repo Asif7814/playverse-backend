@@ -4,6 +4,108 @@ const BASE_URL = process.env.IGDB_BASE_URL;
 const CLIENT_ID = process.env.IGDB_CLIENT_ID;
 const ACCESS_TOKEN = process.env.IGDB_ACCESS_TOKEN;
 
+const getAllGames = async ({
+    sortBy,
+    order,
+    startDate,
+    endDate,
+    genres,
+    platforms,
+    limit,
+}) => {
+    // Initialize body with fields to fetch
+    let body = `fields name, cover.url, game_type.type, genres.name, platforms.name, platforms.abbreviation, release_dates.date;`;
+
+    // Initialize where clause
+    let whereClause = "";
+
+    // Filter by Release Window
+    if (startDate && endDate) {
+        const startTimeStamp = Math.floor(new Date(startDate).getTime() / 1000);
+        const endTimeStamp = Math.floor(new Date(endDate).getTime() / 1000);
+
+        whereClause += `(release_dates.date >= ${startTimeStamp} & release_dates.date <= ${endTimeStamp})`;
+    }
+
+    // Filter by Genres (Multiple Values with OR)
+    if (genres) {
+        const genreArray = genres.split(",").map((g) => `"${g.trim()}"`);
+        const genreFilter = genreArray
+            .map((g) => `genres.name = ${g}`)
+            .join(" | ");
+        whereClause += whereClause ? ` & (${genreFilter})` : `(${genreFilter})`;
+    }
+
+    // Filter by Platforms (Multiple Values with OR)
+    if (platforms) {
+        const platformArray = platforms.split(",").map((p) => `"${p.trim()}"`);
+        const platformFilter = platformArray
+            .map(
+                (p) =>
+                    `(platforms.name = ${p} | platforms.abbreviation = ${p})`,
+            )
+            .join(" | ");
+        whereClause += whereClause
+            ? ` & (${platformFilter})`
+            : `(${platformFilter})`;
+    }
+
+    // Append the combined where clause
+    if (whereClause) {
+        body += ` where ${whereClause};`;
+    }
+
+    // Sorting
+    if (sortBy) {
+        body += ` sort ${sortBy} ${order || "desc"};`;
+    }
+
+    // Limit the number of results
+    body += ` limit ${limit || 10};`;
+
+    const res = await fetch(`${BASE_URL}/games`, {
+        method: "POST",
+        headers: {
+            "Client-ID": CLIENT_ID,
+            Authorization: `Bearer ${ACCESS_TOKEN}`,
+            "Content-Type": "application/json",
+        },
+        body,
+    });
+
+    if (!res.ok) throw new BadRequestError("Failed to fetch data from IGDB");
+
+    const data = await res.json();
+
+    const games = await data
+        .filter((game) => game.game_type.type !== "Pack")
+        .map(
+            ({
+                id,
+                name,
+                cover,
+                game_type,
+                genres,
+                platforms,
+                release_dates,
+            }) => ({
+                id,
+                name,
+                coverImage: cover ? `https:${cover.url}` : null,
+                gameType: game_type ? game_type.type : null,
+                genres: genres ? genres.map((g) => g.name) : null,
+                platforms: platforms
+                    ? platforms.map((p) => p.abbreviation)
+                    : null,
+                releaseDates: release_dates
+                    ? release_dates.map((r) => new Date(r.date * 1000))
+                    : null,
+            }),
+        );
+
+    return games;
+};
+
 const searchGames = async (searchQuery: String) => {
     const res = await fetch(`${BASE_URL}/games`, {
         method: "POST",
@@ -19,7 +121,6 @@ const searchGames = async (searchQuery: String) => {
     if (!res.ok) throw new BadRequestError("Failed to fetch data from IGDB");
 
     const data = await res.json();
-    console.log(data);
 
     // Filter out games that are of type "Pack"
     const filteredGames = await data.filter((game) =>
@@ -183,6 +284,7 @@ const getGameByID = async (id: string) => {
 };
 
 export default {
+    getAllGames,
     searchGames,
     getGameByID,
 };
