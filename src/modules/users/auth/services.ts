@@ -6,6 +6,7 @@ import {
 } from "../../../utils/errors.js";
 import authUtils from "../../../utils/authUtils.js";
 import redisUtils from "../../../utils/redisUtils.js";
+import tokenService from "../../../services/tokenService.js";
 
 const registerUser = async (
     username: string,
@@ -47,4 +48,29 @@ const registerUser = async (
     return { newUser, otp };
 };
 
-export default { registerUser };
+const verifyUser = async (otp: number) => {
+    const userId = await redisUtils.getOTP(otp);
+    if (!userId) throw new NotFoundError("OTP is invalid or has expired");
+
+    const user = await User.findByIdAndUpdate(
+        userId,
+        { accountStatus: "active" },
+        { new: true },
+    );
+
+    if (!user) throw new NotFoundError("User not found");
+
+    // Generate access and refresh tokens
+    const accessToken = tokenService.generateAccessToken(user.id);
+    const refreshToken = tokenService.generateRefreshToken(user.id);
+
+    // Save refresh token in Redis
+    await redisUtils.setRefreshToken(user.id, refreshToken);
+
+    // Clear OTP from Redis
+    await redisUtils.clearOTP(otp);
+
+    return { user, accessToken, refreshToken };
+};
+
+export default { registerUser, verifyUser };

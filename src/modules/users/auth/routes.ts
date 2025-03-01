@@ -6,4 +6,6 @@ const authUserRouter = Router();
 
 authUserRouter.post("/register", authUserController.registerUser);
 
+authUserRouter.post("/verify", authUserController.verifyUser);
+
 export default authUserRouter;
