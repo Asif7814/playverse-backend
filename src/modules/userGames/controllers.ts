@@ -2,7 +2,7 @@ import UserGameService from "./services.js";
 import { Controller, ParamsWithId } from "../../types/controllers.js";
 import { Request } from "express";
 
-// @desc    Create a new User Game
+// @desc    Add a game to the user's library
 // @route   POST /api/UserGame
 // @access  Private
 const createUserGame: Controller = async (req, res, next) => {
@@ -17,7 +17,7 @@ const createUserGame: Controller = async (req, res, next) => {
     }
 };
 
-// @desc    Get all User Games
+// @desc    Get all games from the user's library
 // @route   GET /api/UserGames
 // @access  Public
 const getAllUserGames: Controller = async (_req, res, next) => {
@@ -32,7 +32,7 @@ const getAllUserGames: Controller = async (_req, res, next) => {
     }
 };
 
-// @desc    Get an individual User Game by their id
+// @desc    Get an individual game by its id from the user's library
 // @route   GET /api/UserGames/:id
 // @access  Public
 const getUserGameByID: Controller = async (
@@ -52,7 +52,7 @@ const getUserGameByID: Controller = async (
     }
 };
 
-// @desc    Update a part of an individual User Game
+// @desc    Update a part of an individual game from the user's library
 // @route   PATCH /api/UserGames/:id
 // @access  Private
 const updateUserGame: Controller = async (
@@ -75,7 +75,7 @@ const updateUserGame: Controller = async (
     }
 };
 
-// @desc    Delete an individual User Game
+// @desc    Delete an individual game from the user's library
 // @route   DELETE /api/UserGames/:id
 // @access  Private
 const deleteUserGame: Controller = async (

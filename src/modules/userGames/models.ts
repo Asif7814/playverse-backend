@@ -106,7 +106,8 @@ const gameSchema = new Schema<IGame>(
         },
     },
     {
-        timestamps: true,
+        _id: false,
+        timestamps: false,
         versionKey: false,
     },
 );
