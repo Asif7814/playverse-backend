@@ -4,19 +4,13 @@ import gameController from "./controllers.js";
 
 const gameRouter = Router();
 
-// C - Create
-gameRouter.post("/", gameController.createGames);
-
-// R - Read all
+// R - Get all games by filters
 gameRouter.get("/", gameController.getAllGames);
+
+// R - Search for games by their title
+gameRouter.get("/search", gameController.searchGames);
 
 // R - Read one
 gameRouter.get("/:id", gameController.getGameByID);
-
-// U - Update (partial)
-gameRouter.patch("/:id", gameController.updateGame);
-
-// D - Delete
-gameRouter.delete("/:id", gameController.deleteGame);
 
 export default gameRouter;

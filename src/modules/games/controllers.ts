@@ -1,28 +1,35 @@
-import gameService from "./services.js";
-import { Controller, ParamsWithId } from "../../types/controllers.js";
 import { Request } from "express";
 
-// @desc    Create a new game
-// @route   POST /api/game
-// @access  Private
-const createGames: Controller = async (req, res, next) => {
-    try {
-        const newGame = await gameService.createGames(req.body);
+import gameService from "./services.js";
+import { Controller, ParamsWithId } from "../../types/controllers.js";
 
-        res.status(201).json({
-            data: newGame,
-        });
-    } catch (err) {
-        next(err);
-    }
-};
-
-// @desc    Get all games
+// @desc    Get all games by various filters
 // @route   GET /api/games
 // @access  Public
-const getAllGames: Controller = async (_req, res, next) => {
+const getAllGames: Controller = async (req, res, next) => {
     try {
-        const games = await gameService.getAllGames();
+        const { sortBy, order, startDate, endDate, genres, platforms, limit } =
+            req.query;
+
+        const queries = {
+            sortBy: null,
+            order: null,
+            startDate: null,
+            endDate: null,
+            genres: null,
+            platforms: null,
+            limit: null,
+        };
+
+        queries.sortBy = sortBy as string;
+        queries.order = order as string;
+        queries.startDate = startDate as string;
+        queries.endDate = endDate as string;
+        queries.genres = genres as string[];
+        queries.platforms = platforms as string[];
+        queries.limit = limit as string;
+
+        const games = await gameService.getAllGames(queries);
 
         res.status(200).json({
             data: games,
@@ -32,7 +39,23 @@ const getAllGames: Controller = async (_req, res, next) => {
     }
 };
 
-// @desc    Get an individual game by their id
+// @desc    Search for games by their title
+// @route   GET /api/games/search
+// @access  Public
+const searchGames: Controller = async (req, res, next) => {
+    try {
+        const { title } = req.query as { title: string };
+        const games = await gameService.searchGames(title);
+
+        res.status(200).json({
+            data: games,
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc    Get an individual game's details by the game id
 // @route   GET /api/games/:id
 // @access  Public
 const getGameByID: Controller = async (
@@ -52,50 +75,8 @@ const getGameByID: Controller = async (
     }
 };
 
-// @desc    Update a part of an individual game
-// @route   PATCH /api/games/:id
-// @access  Private
-const updateGame: Controller = async (
-    req: Request<ParamsWithId>,
-    res,
-    next,
-) => {
-    try {
-        const { id } = req.params;
-        const updatedGame = await gameService.updateGame(id, req.body);
-
-        res.status(200).json({
-            data: updatedGame,
-        });
-    } catch (err) {
-        next(err);
-    }
-};
-
-// @desc    Delete an individual game
-// @route   DELETE /api/games/:id
-// @access  Private
-const deleteGame: Controller = async (
-    req: Request<ParamsWithId>,
-    res,
-    next,
-) => {
-    try {
-        const { id } = req.params;
-        const deletedGame = await gameService.deleteGame(id);
-
-        res.status(200).json({
-            data: deletedGame,
-        });
-    } catch (err) {
-        next(err);
-    }
-};
-
 export default {
-    createGames,
     getAllGames,
+    searchGames,
     getGameByID,
-    updateGame,
-    deleteGame,
 };
