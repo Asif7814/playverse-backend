@@ -14,7 +14,7 @@ const getAllGames = async ({
     limit,
 }) => {
     // Initialize body with fields to fetch
-    let body = `fields name, cover.url, game_type.type, genres.name, platforms.name, platforms.abbreviation, release_dates.date;`;
+    let body = `fields name, cover.url, game_type.type, genres.name, platforms.name, platforms.abbreviation, first_release_date;`;
 
     // Initialize where clause
     let whereClause = "";
@@ -24,10 +24,10 @@ const getAllGames = async ({
         const startTimeStamp = Math.floor(new Date(startDate).getTime() / 1000);
         const endTimeStamp = Math.floor(new Date(endDate).getTime() / 1000);
 
-        whereClause += `(release_dates.date >= ${startTimeStamp} & release_dates.date <= ${endTimeStamp})`;
+        whereClause += `(first_release_date >= ${startTimeStamp} & first_release_date <= ${endTimeStamp})`;
     }
 
-    // Filter by Genres (Multiple Values with OR)
+    // Filter by Genres
     if (genres) {
         const genreArray = genres.split(",").map((g) => `"${g.trim()}"`);
         const genreFilter = genreArray
@@ -36,7 +36,7 @@ const getAllGames = async ({
         whereClause += whereClause ? ` & (${genreFilter})` : `(${genreFilter})`;
     }
 
-    // Filter by Platforms (Multiple Values with OR)
+    // Filter by Platforms
     if (platforms) {
         const platformArray = platforms.split(",").map((p) => `"${p.trim()}"`);
         const platformFilter = platformArray
@@ -63,6 +63,7 @@ const getAllGames = async ({
     // Limit the number of results
     body += ` limit ${limit || 10};`;
 
+    // Fetch data from IGDB
     const res = await fetch(`${BASE_URL}/games`, {
         method: "POST",
         headers: {
@@ -87,7 +88,7 @@ const getAllGames = async ({
                 game_type,
                 genres,
                 platforms,
-                release_dates,
+                first_release_date,
             }) => ({
                 id,
                 name,
@@ -97,8 +98,8 @@ const getAllGames = async ({
                 platforms: platforms
                     ? platforms.map((p) => p.abbreviation)
                     : null,
-                releaseDates: release_dates
-                    ? release_dates.map((r) => new Date(r.date * 1000))
+                releaseDates: first_release_date
+                    ? new Date(first_release_date * 1000)
                     : null,
             }),
         );
@@ -150,8 +151,7 @@ const getGameByID = async (id: string) => {
             Authorization: `Bearer ${ACCESS_TOKEN}`,
             "Content-Type": "application/json",
         },
-        body: `fields name, cover.url, game_type.type, summary, platforms.name, platforms.alternative_name, platforms.abbreviation, genres.name,  
-        release_dates.human, involved_companies.developer, involved_companies.publisher, involved_companies.company.name, videos.name, videos.video_id, screenshots.url;
+        body: `fields name, cover.url, game_type.type, storyline, platforms.name, platforms.alternative_name, platforms.abbreviation, genres.name, first_release_date, involved_companies.developer, involved_companies.publisher, involved_companies.company.name, videos.name, videos.video_id, screenshots.url;
                 where id = ${id};`,
     });
 
@@ -166,10 +166,10 @@ const getGameByID = async (id: string) => {
                 name,
                 cover,
                 game_type,
-                summary,
+                storyline,
                 platforms,
                 genres,
-                release_dates,
+                first_release_date,
                 involved_companies,
                 videos,
                 screenshots,
@@ -194,8 +194,8 @@ const getGameByID = async (id: string) => {
                     ? genres.map(({ name }) => name)
                     : null;
 
-                const releaseDate = release_dates
-                    ? release_dates[0].human
+                const releaseDate = first_release_date
+                    ? new Date(first_release_date * 1000)
                     : null;
 
                 const developers = involved_companies
@@ -262,10 +262,10 @@ const getGameByID = async (id: string) => {
                     name,
                     coverImage,
                     gameType,
-                    description: summary,
+                    description: storyline,
                     platforms: updatedPlatforms,
                     genres: updatedGenres,
-                    releaseDate: new Date(releaseDate),
+                    releaseDate,
                     developers,
                     publishers,
                     trailers,
