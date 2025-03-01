@@ -51,6 +51,11 @@ const updateUserGame = async (
     id: string,
     updatedValue: Partial<IUserGame>,
 ): Promise<IUserGame> => {
+    // Check if the game details are being updated
+    if (updatedValue.game) {
+        throw new BadRequestError("Cannot update actual game details");
+    }
+
     const newUserGame = await UserGame.findByIdAndUpdate(id, updatedValue, {
         new: true,
     });
