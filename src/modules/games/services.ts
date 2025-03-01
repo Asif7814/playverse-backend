@@ -269,7 +269,7 @@ const getGameByID = async (id: string) => {
                     developers,
                     publishers,
                     trailers,
-                    screenshotsURL,
+                    screenshots: screenshotsURL,
                     estimatedTimeToBeat: {
                         story: timeToBeatHastily,
                         storyAndExtras: timeToBeatNormally,

@@ -8,6 +8,7 @@ import { connectDB } from "./config/db.js";
 import sanitizeBody from "./middlewares/sanitizeBody.js";
 
 import gameRouter from "./modules/games/routes.js";
+import userGameRouter from "./modules/userGames/routes.js";
 
 import errorHandler from "./utils/errors.js";
 
@@ -28,6 +29,7 @@ app.get("/", (_req: Request, res: Response) => {
 
 // ROUTES
 app.use("/api/games", gameRouter);
+app.use("/api/userGames", userGameRouter);
 
 app.use(errorHandler);
 
