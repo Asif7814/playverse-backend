@@ -1,6 +1,6 @@
 import { model, Schema, Document, Types } from "mongoose";
 
-export interface IProfile extends Document {
+export interface IUser extends Document {
     accountStatus: string;
     username: string;
     email: string;
@@ -10,7 +10,7 @@ export interface IProfile extends Document {
     isGoogleAccount: boolean;
 }
 
-const profileSchema = new Schema<IProfile>(
+const userSchema = new Schema<IUser>(
     {
         // AUTHENTICATION FIELDS
         accountStatus: {
@@ -54,11 +54,11 @@ const profileSchema = new Schema<IProfile>(
     },
 );
 
-profileSchema.pre("validate", function (next) {
+userSchema.pre("validate", function (next) {
     if (this.isGoogleAccount) {
         this.password = undefined; // Explicitly unset password if Google account
     }
     next();
 });
 
-export default model<IProfile>("profile", profileSchema);
+export default model<IUser>("user", userSchema);

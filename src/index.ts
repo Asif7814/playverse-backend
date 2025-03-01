@@ -7,8 +7,8 @@ import "dotenv/config";
 import { connectDB } from "./config/db.js";
 import sanitizeBody from "./middlewares/sanitizeBody.js";
 
-import authProfileRouter from "./modules/profiles/auth/routes.js";
-import profileRouter from "./modules/profiles/routes.js";
+import authUserRouter from "./modules/users/auth/routes.js";
+import userRouter from "./modules/users/routes.js";
 import gameRouter from "./modules/games/routes.js";
 import userGameRouter from "./modules/userGames/routes.js";
 
@@ -30,8 +30,8 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 // ROUTES
-app.use("/auth/profiles", authProfileRouter);
-app.use("/api/profiles", profileRouter);
+app.use("/auth/users", authUserRouter);
+app.use("/api/users", userRouter);
 app.use("/api/games", gameRouter);
 app.use("/api/userGames", userGameRouter);
 
