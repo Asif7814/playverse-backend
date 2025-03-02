@@ -391,6 +391,25 @@ const requestAccountDeactivation = async (id: string) => {
     return { user, otp };
 };
 
+const deactivateAccount = async (otp: number) => {
+    // Find user ID by OTP in Redis
+    const userId = await redisUtils.getOTP(otp);
+    if (!userId) throw new NotFoundError("OTP is invalid or has expired");
+
+    // Deactivate user account
+    const user = await User.findByIdAndUpdate(
+        userId,
+        { accountStatus: "deactivated", deactivationDate: new Date() },
+        { new: true },
+    );
+    if (!user) throw new NotFoundError("User not found");
+
+    // Clear OTP from Redis
+    await redisUtils.clearOTP(otp);
+
+    return user;
+};
+
 export default {
     registerUser,
     verifyUser,
@@ -404,4 +423,5 @@ export default {
     updateEmail,
     replaceEmail,
     requestAccountDeactivation,
+    deactivateAccount,
 };

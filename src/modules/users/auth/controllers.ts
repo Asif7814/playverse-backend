@@ -248,6 +248,22 @@ const requestAccountDeactivation: Controller = async (req, res, next) => {
     }
 };
 
+const deactivateAccount: Controller = async (req, res, next) => {
+    try {
+        const { otp } = req.body;
+        const user = await authService.deactivateAccount(otp);
+
+        console.log("User deactivated account", user);
+
+        res.status(200).json({
+            message: "Account deactivated successfully.",
+            data: { user },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export default {
     registerUser,
     verifyUser,
@@ -261,4 +277,5 @@ export default {
     updateEmail,
     replaceEmail,
     requestAccountDeactivation,
+    deactivateAccount,
 };
