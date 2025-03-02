@@ -3,7 +3,7 @@ import { Controller, ParamsWithId } from "../../types/controllers.js";
 import { Request } from "express";
 
 // @desc    Add a game to the user's library
-// @route   POST /api/UserGame
+// @route   POST /api/userGames
 // @access  Private
 const createUserGame: Controller = async (req, res, next) => {
     try {
@@ -18,8 +18,8 @@ const createUserGame: Controller = async (req, res, next) => {
 };
 
 // @desc    Get all games from the user's library
-// @route   GET /api/UserGames
-// @access  Public
+// @route   GET /api/userGames
+// @access  Private
 const getAllUserGames: Controller = async (_req, res, next) => {
     try {
         const userGames = await UserGameService.getAllUserGames();
@@ -33,8 +33,8 @@ const getAllUserGames: Controller = async (_req, res, next) => {
 };
 
 // @desc    Get all games from the user's library that match the search query
-// @route   GET /api/UserGames/search?query=searchQuery
-// @access  Public
+// @route   GET /api/userGames/search
+// @access  Private
 const searchUserGames: Controller = async (req, res, next) => {
     try {
         const { name } = req.query as { name: string };
@@ -49,8 +49,8 @@ const searchUserGames: Controller = async (req, res, next) => {
 };
 
 // @desc    Get an individual game by its id from the user's library
-// @route   GET /api/UserGames/:id
-// @access  Public
+// @route   GET /api/userGames/:id
+// @access  Private
 const getUserGameByID: Controller = async (
     req: Request<ParamsWithId>,
     res,
@@ -69,7 +69,7 @@ const getUserGameByID: Controller = async (
 };
 
 // @desc    Update a part of an individual game from the user's library
-// @route   PATCH /api/UserGames/:id
+// @route   PATCH /api/userGames/:id
 // @access  Private
 const updateUserGame: Controller = async (
     req: Request<ParamsWithId>,
@@ -92,7 +92,7 @@ const updateUserGame: Controller = async (
 };
 
 // @desc    Delete an individual game from the user's library
-// @route   DELETE /api/UserGames/:id
+// @route   DELETE /api/userGames/:id
 // @access  Private
 const deleteUserGame: Controller = async (
     req: Request<ParamsWithId>,

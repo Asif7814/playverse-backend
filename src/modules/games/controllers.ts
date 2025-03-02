@@ -5,7 +5,7 @@ import { Controller, ParamsWithId } from "../../types/controllers.js";
 
 // @desc    Get all games by various filters
 // @route   GET /api/games
-// @access  Public
+// @access  Private
 const getAllGames: Controller = async (req, res, next) => {
     try {
         const { sortBy, order, startDate, endDate, genres, platforms, limit } =
@@ -41,7 +41,7 @@ const getAllGames: Controller = async (req, res, next) => {
 
 // @desc    Search for games by their title
 // @route   GET /api/games/search
-// @access  Public
+// @access  Private
 const searchGames: Controller = async (req, res, next) => {
     try {
         const { title } = req.query as { title: string };
@@ -57,7 +57,7 @@ const searchGames: Controller = async (req, res, next) => {
 
 // @desc    Get an individual game's details by the game id
 // @route   GET /api/games/:id
-// @access  Public
+// @access  Private
 const getGameByID: Controller = async (
     req: Request<ParamsWithId>,
     res,

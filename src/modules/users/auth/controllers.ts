@@ -173,7 +173,7 @@ const verifyOTP: Controller = async (req, res, next) => {
     }
 };
 
-// @desc    Reset user password using OTP
+// @desc    Reset user password using reset token
 // @route   POST /auth/users/reset-password
 // @access  PUBLIC
 const resetPassword: Controller = async (req, res, next) => {
