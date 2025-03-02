@@ -10,4 +10,6 @@ authUserRouter.post("/verify", authUserController.verifyUser);
 
 authUserRouter.post("/login", authUserController.loginUser);
 
+authUserRouter.post("/logout", authUserController.logoutUser);
+
 export default authUserRouter;

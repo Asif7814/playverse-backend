@@ -121,4 +121,26 @@ const loginUser = async ({ email, password, potentialRefreshToken }) => {
     return { user, accessToken, refreshToken };
 };
 
-export default { registerUser, verifyUser, loginUser };
+const logoutUser = async (refreshToken: string) => {
+    // Get user ID from Redis
+    const userId = await redisUtils.getRefreshToken(refreshToken);
+    if (!userId) throw new UnauthorizedError("Invalid refresh token");
+
+    // Find the user associated with the refresh token
+    const user = await User.findById(userId);
+
+    if (!user) {
+        throw new NotFoundError("User not found");
+    }
+
+    if (user.accountStatus === "PENDING") {
+        throw new BadRequestError("Please complete account verification");
+    }
+
+    // Delete refresh token from Redis
+    redisUtils.clearRefreshToken(refreshToken);
+
+    return user;
+};
+
+export default { registerUser, verifyUser, loginUser, logoutUser };

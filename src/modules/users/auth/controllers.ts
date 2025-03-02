@@ -72,4 +72,21 @@ const loginUser: Controller = async (req, res, next) => {
     }
 };
 
-export default { registerUser, verifyUser, loginUser };
+const logoutUser: Controller = async (req, res, next) => {
+    try {
+        const { refreshToken } = req.body;
+
+        const user = await authService.logoutUser(refreshToken);
+
+        console.log("User logged out:", user);
+
+        res.status(200).json({
+            message: "User logged out successfully.",
+            data: { user },
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export default { registerUser, verifyUser, loginUser, logoutUser };
