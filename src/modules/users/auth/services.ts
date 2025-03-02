@@ -186,10 +186,30 @@ const refreshToken = async (refreshToken: string) => {
     return { user, newAccessToken, newRefreshToken };
 };
 
+const forgotPassword = async (email: string) => {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        throw new NotFoundError("User with this email not found");
+    }
+
+    if (user.accountStatus !== "active") {
+        throw new BadRequestError(
+            "Cannot request password reset for inactive accounts",
+        );
+    }
+
+    const otp = authUtils.generateOTP();
+    await redisUtils.setOTP(user.id, otp);
+
+    return { user, otp };
+};
+
 export default {
     registerUser,
     verifyUser,
     loginUser,
     logoutUser,
     refreshToken,
+    forgotPassword,
 };

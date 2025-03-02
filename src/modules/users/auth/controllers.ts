@@ -115,10 +115,29 @@ const refreshToken: Controller = async (req, res, next) => {
     }
 };
 
+const forgotPassword: Controller = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+
+        const { user, otp } = await authService.forgotPassword(email);
+
+        console.log("User forgot password", { user });
+        console.log("OTP sent", { otp });
+
+        res.status(200).json({
+            message: "Password reset instructions sent.",
+            data: { user, otp },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export default {
     registerUser,
     verifyUser,
     loginUser,
     logoutUser,
     refreshToken,
+    forgotPassword,
 };
