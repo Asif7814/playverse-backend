@@ -348,6 +348,34 @@ const updateEmail = async (id: string, newEmail: string, password: string) => {
     return { user, otp };
 };
 
+const replaceEmail = async (otp: number) => {
+    const userId = await redisUtils.getOTP(otp);
+    if (!userId) throw new NotFoundError("OTP is invalid or has expired");
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+        throw new NotFoundError("User not found");
+    }
+
+    if (user.accountStatus !== "active") {
+        throw new BadRequestError("Cannot replace email for inactive accounts");
+    }
+
+    // Temporarily store previous email
+    const previousEmail = user.email;
+
+    // Find new email in Redis and update user's email
+    const newEmail = await redisUtils.getNewEmail(user.id);
+    user.email = newEmail;
+    await user.save();
+
+    await redisUtils.clearOTP(otp);
+    await redisUtils.clearNewEmail(user.id);
+
+    return { user, previousEmail };
+};
+
 export default {
     registerUser,
     verifyUser,
@@ -359,4 +387,5 @@ export default {
     resetPassword,
     updatePassword,
     updateEmail,
+    replaceEmail,
 };

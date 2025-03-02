@@ -213,6 +213,24 @@ const updateEmail: Controller = async (req, res, next) => {
     }
 };
 
+const replaceEmail: Controller = async (req, res, next) => {
+    try {
+        const { otp } = req.body;
+
+        const { user, previousEmail } = await authService.replaceEmail(otp);
+
+        console.log("User replaced email", user.email);
+        console.log("Previous email", previousEmail);
+
+        res.status(200).json({
+            message: "Email updated successfully.",
+            data: { user },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export default {
     registerUser,
     verifyUser,
@@ -224,4 +242,5 @@ export default {
     resetPassword,
     updatePassword,
     updateEmail,
+    replaceEmail,
 };
