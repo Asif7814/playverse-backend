@@ -190,6 +190,29 @@ const updatePassword: Controller = async (req, res, next) => {
     }
 };
 
+const updateEmail: Controller = async (req, res, next) => {
+    try {
+        const { id } = req.user;
+        const { newEmail, password } = req.body;
+
+        const { user, otp } = await authService.updateEmail(
+            id,
+            newEmail,
+            password,
+        );
+
+        console.log("User requested email update", user);
+        console.log("OTP sent", otp);
+
+        res.status(200).json({
+            message: "Email update requested successfully.",
+            data: { user, otp },
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
     registerUser,
     verifyUser,
@@ -200,4 +223,5 @@ export default {
     verifyOTP,
     resetPassword,
     updatePassword,
+    updateEmail,
 };

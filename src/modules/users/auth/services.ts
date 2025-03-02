@@ -308,6 +308,46 @@ const updatePassword = async (
     return user;
 };
 
+const updateEmail = async (id: string, newEmail: string, password: string) => {
+    // Check if email is already in use
+    const potentialUser = await User.findOne({ email: newEmail });
+
+    if (potentialUser) {
+        throw new BadRequestError("A user with this email already exists");
+    }
+
+    const user = await User.findById(id);
+
+    // Check if user exists
+    if (!user) {
+        throw new NotFoundError("User not found");
+    }
+
+    // Ensure user account is active
+    if (user.accountStatus !== "active") {
+        throw new BadRequestError("Cannot update email for inactive accounts");
+    }
+
+    // Compare passwords to verify user
+    const validPassword = await authUtils.comparePasswords(
+        password,
+        user.password,
+    );
+
+    if (!validPassword) {
+        throw new BadRequestError("Incorrect password. Please try again");
+    }
+
+    // Keep track of old email
+    await redisUtils.setNewEmail(user.id, newEmail);
+
+    // Generate OTP for email verification
+    const otp = authUtils.generateOTP();
+    await redisUtils.setOTP(user.id, otp);
+
+    return { user, otp };
+};
+
 export default {
     registerUser,
     verifyUser,
@@ -318,4 +358,5 @@ export default {
     verifyOTP,
     resetPassword,
     updatePassword,
+    updateEmail,
 };

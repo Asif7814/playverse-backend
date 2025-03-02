@@ -27,4 +27,6 @@ authUserRouter.post(
     authUserController.updatePassword,
 );
 
+authUserRouter.post("/update-email", protect, authUserController.updateEmail);
+
 export default authUserRouter;
