@@ -43,4 +43,9 @@ authUserRouter.post(
     authUserController.deactivateAccount,
 );
 
+authUserRouter.post(
+    "/request-account-reactivation",
+    authUserController.requestAccountReactivation,
+);
+
 export default authUserRouter;

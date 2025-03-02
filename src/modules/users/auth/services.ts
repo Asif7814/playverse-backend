@@ -410,6 +410,21 @@ const deactivateAccount = async (otp: number) => {
     return user;
 };
 
+const requestAccountReactivation = async (email: string) => {
+    // Check if user exists and account is actually deactivated
+    const user = await User.findOne({ email });
+
+    if (!user || user.accountStatus !== "deactivated") {
+        throw new NotFoundError("User not found or not deactivated");
+    }
+
+    // Generate OTP for account reactivation
+    const otp = authUtils.generateOTP();
+    await redisUtils.setOTP(user.id, otp);
+
+    return { user, otp };
+};
+
 export default {
     registerUser,
     verifyUser,
@@ -424,4 +439,5 @@ export default {
     replaceEmail,
     requestAccountDeactivation,
     deactivateAccount,
+    requestAccountReactivation,
 };
