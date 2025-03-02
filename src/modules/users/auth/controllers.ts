@@ -1,6 +1,9 @@
 import authService from "./services.js";
 import { Controller } from "../../../types/controllers.js";
 
+// @desc    Create user and send verification email
+// @route   POST /auth/users/register
+// @access  PUBLIC
 const registerUser: Controller = async (req, res, next) => {
     try {
         const { username, email, password } = req.body;
@@ -23,6 +26,10 @@ const registerUser: Controller = async (req, res, next) => {
     }
 };
 
+// @desc    Verify user using OTP, activate account with verified status, and send
+//          access token and refresh token
+// @route   POST /auth/users/verify
+// @access  PUBLIC
 const verifyUser: Controller = async (req, res, next) => {
     try {
         const { otp } = req.body;
@@ -46,6 +53,9 @@ const verifyUser: Controller = async (req, res, next) => {
     }
 };
 
+// @desc    Login user and send access token and refresh token
+// @route   POST /auth/users/login
+// @access  PUBLIC
 const loginUser: Controller = async (req, res, next) => {
     try {
         const { email, password, potentialRefreshToken } = req.body;
@@ -72,6 +82,9 @@ const loginUser: Controller = async (req, res, next) => {
     }
 };
 
+// @desc    Logout user by clearing refresh token from redis
+// @route   POST /auth/users/logout
+// @access  PRIVATE
 const logoutUser: Controller = async (req, res, next) => {
     try {
         const { refreshToken } = req.body;
@@ -89,6 +102,9 @@ const logoutUser: Controller = async (req, res, next) => {
     }
 };
 
+// @desc    Refresh user access token using refresh token and set new refresh token
+// @route   POST /auth/users/refresh-token
+// @access  PRIVATE
 const refreshToken: Controller = async (req, res, next) => {
     try {
         const { refreshToken } = req.body;
@@ -115,6 +131,9 @@ const refreshToken: Controller = async (req, res, next) => {
     }
 };
 
+// @desc    Send password reset instructions to user email
+// @route   POST /auth/users/forgot-password
+// @access  PUBLIC
 const forgotPassword: Controller = async (req, res, next) => {
     try {
         const { email } = req.body;
@@ -133,6 +152,9 @@ const forgotPassword: Controller = async (req, res, next) => {
     }
 };
 
+// @desc    Verify an OTP and send back a reset token
+// @route   POST /auth/users/verify-otp
+// @access  PUBLIC
 const verifyOTP: Controller = async (req, res, next) => {
     try {
         const { otp } = req.body;
@@ -151,6 +173,9 @@ const verifyOTP: Controller = async (req, res, next) => {
     }
 };
 
+// @desc    Reset user password using OTP
+// @route   POST /auth/users/reset-password
+// @access  PUBLIC
 const resetPassword: Controller = async (req, res, next) => {
     try {
         const { resetToken, newPassword } = req.body;
@@ -168,6 +193,9 @@ const resetPassword: Controller = async (req, res, next) => {
     }
 };
 
+// @desc    Update user password
+// @route   POST /auth/users/update-password
+// @access  PRIVATE
 const updatePassword: Controller = async (req, res, next) => {
     try {
         const { id } = req.user;
@@ -190,6 +218,9 @@ const updatePassword: Controller = async (req, res, next) => {
     }
 };
 
+// @desc    Request email update
+// @route   POST /auth/users/update-email
+// @access  PRIVATE
 const updateEmail: Controller = async (req, res, next) => {
     try {
         const { id } = req.user;
@@ -213,6 +244,9 @@ const updateEmail: Controller = async (req, res, next) => {
     }
 };
 
+// @desc    Verify using OTP and replace email
+// @route   POST /auth/users/replace-email
+// @access  PRIVATE
 const replaceEmail: Controller = async (req, res, next) => {
     try {
         const { otp } = req.body;
@@ -231,6 +265,9 @@ const replaceEmail: Controller = async (req, res, next) => {
     }
 };
 
+// @desc    Request account deactivation
+// @route   POST /auth/users/request-account-deactivation
+// @access  PRIVATE
 const requestAccountDeactivation: Controller = async (req, res, next) => {
     try {
         const { id } = req.user;
@@ -248,6 +285,9 @@ const requestAccountDeactivation: Controller = async (req, res, next) => {
     }
 };
 
+// @desc    Deactivate account using OTP
+// @route   POST /auth/users/deactivate-account
+// @access  PRIVATE
 const deactivateAccount: Controller = async (req, res, next) => {
     try {
         const { otp } = req.body;
@@ -264,6 +304,9 @@ const deactivateAccount: Controller = async (req, res, next) => {
     }
 };
 
+// @desc    Request account reactivation
+// @route   POST /auth/users/request-account-reactivation
+// @access  PUBLIC
 const requestAccountReactivation: Controller = async (req, res, next) => {
     try {
         const { email } = req.body;
@@ -283,6 +326,9 @@ const requestAccountReactivation: Controller = async (req, res, next) => {
     }
 };
 
+// @desc    Reactivate account using OTP
+// @route   POST /auth/users/reactivate-account
+// @access  PUBLIC
 const reactivateAccount: Controller = async (req, res, next) => {
     try {
         const { otp } = req.body;
