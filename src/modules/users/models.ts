@@ -8,6 +8,8 @@ export interface IUser extends Document {
 
     googleId?: string;
     isGoogleAccount: boolean;
+
+    deactivationDate?: Date;
 }
 
 const userSchema = new Schema<IUser>(
@@ -46,6 +48,12 @@ const userSchema = new Schema<IUser>(
             type: Boolean,
             required: true,
             default: false,
+        },
+
+        // SPECIAL FIELDS
+        // cron job will check this to delete account after 30 days
+        deactivationDate: {
+            type: Date,
         },
     },
     {

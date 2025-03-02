@@ -283,6 +283,22 @@ const requestAccountReactivation: Controller = async (req, res, next) => {
     }
 };
 
+const reactivateAccount: Controller = async (req, res, next) => {
+    try {
+        const { otp } = req.body;
+        const user = await authService.reactivateAccount(otp);
+
+        console.log("User reactivated account", user);
+
+        res.status(200).json({
+            message: "Account reactivated successfully.",
+            data: { user },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export default {
     registerUser,
     verifyUser,
@@ -298,4 +314,5 @@ export default {
     requestAccountDeactivation,
     deactivateAccount,
     requestAccountReactivation,
+    reactivateAccount,
 };
