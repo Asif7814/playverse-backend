@@ -46,4 +46,30 @@ const verifyUser: Controller = async (req, res, next) => {
     }
 };
 
-export default { registerUser, verifyUser };
+const loginUser: Controller = async (req, res, next) => {
+    try {
+        const { email, password, potentialRefreshToken } = req.body;
+
+        let loginData = { email, password, potentialRefreshToken: null };
+
+        if (potentialRefreshToken) {
+            loginData.potentialRefreshToken = potentialRefreshToken;
+        }
+
+        const { user, accessToken, refreshToken } =
+            await authService.loginUser(loginData);
+
+        console.log("User logged in:", user);
+        console.log("Access token:", accessToken);
+        console.log("Refresh token:", refreshToken);
+
+        res.status(200).json({
+            message: "User logged in successfully.",
+            data: { user, tokens: { accessToken, refreshToken } },
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export default { registerUser, verifyUser, loginUser };

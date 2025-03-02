@@ -73,4 +73,52 @@ const verifyUser = async (otp: number) => {
     return { user, accessToken, refreshToken };
 };
 
-export default { registerUser, verifyUser };
+const loginUser = async ({ email, password, potentialRefreshToken }) => {
+    // Ensure required fields are provided
+    if (!email || !password) {
+        throw new BadRequestError("Please provide all required fields");
+    }
+
+    const user = await User.findOne({ email });
+
+    // Check if user exists
+    if (!user) {
+        throw new NotFoundError("User with this email not found");
+    }
+
+    // Check if user's account is active
+    if (user.accountStatus === "pending") {
+        throw new BadRequestError("Please complete account verification");
+    }
+
+    if (user.accountStatus === "deactivated") {
+        throw new BadRequestError(
+            "Your account has been deactivated. Reactivate it to login",
+        );
+    }
+
+    // Compare passwords to verify user
+    const validPassword = await authUtils.comparePasswords(
+        password,
+        user.password,
+    );
+
+    if (!validPassword)
+        throw new BadRequestError("Incorrect password. Please try again");
+
+    // Generate access and refresh tokens
+    const accessToken = tokenService.generateAccessToken(user.id);
+    const refreshToken = tokenService.generateRefreshToken(user.id);
+
+    // Clear old refresh token from Redis if it exists
+    if (potentialRefreshToken) {
+        await redisUtils.clearRefreshToken(potentialRefreshToken);
+    }
+
+    // Save refresh token in Redis
+    await redisUtils.setRefreshToken(user.id, refreshToken);
+
+    return { user, accessToken, refreshToken };
+};
+
+export default { registerUser, verifyUser, loginUser };
