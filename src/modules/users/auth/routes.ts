@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import authUserController from "./controllers.js";
+import protect from "../../../middlewares/authMiddleware.js";
 
 const authUserRouter = Router();
 
@@ -19,5 +20,11 @@ authUserRouter.post("/forgot-password", authUserController.forgotPassword);
 authUserRouter.post("/verify-otp", authUserController.verifyOTP);
 
 authUserRouter.post("/reset-password", authUserController.resetPassword);
+
+authUserRouter.post(
+    "/update-password",
+    protect,
+    authUserController.updatePassword,
+);
 
 export default authUserRouter;

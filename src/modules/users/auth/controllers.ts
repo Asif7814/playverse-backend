@@ -168,6 +168,28 @@ const resetPassword: Controller = async (req, res, next) => {
     }
 };
 
+const updatePassword: Controller = async (req, res, next) => {
+    try {
+        const { id } = req.user;
+        const { oldPassword, newPassword } = req.body;
+
+        const user = await authService.updatePassword(
+            id,
+            oldPassword,
+            newPassword,
+        );
+
+        console.log("User updated password", user);
+
+        res.status(200).json({
+            message: "Password updated successfully.",
+            data: { user },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export default {
     registerUser,
     verifyUser,
@@ -177,4 +199,5 @@ export default {
     forgotPassword,
     verifyOTP,
     resetPassword,
+    updatePassword,
 };

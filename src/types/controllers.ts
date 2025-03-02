@@ -10,3 +10,9 @@ export type Controller = (
 export type ParamsWithId = {
     id: string;
 };
+
+declare module "express" {
+    interface Request {
+        user?: { id: string };
+    }
+}

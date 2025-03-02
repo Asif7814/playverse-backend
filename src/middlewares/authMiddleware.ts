@@ -2,14 +2,12 @@ import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { BadRequestError, UnauthorizedError } from "../utils/errors.js";
 
-const { JWT_SECRET } = process.env;
-
 interface AuthenticatedRequest extends Request {
     user?: { id: string };
 }
 
 interface JwtPayload {
-    id: string;
+    userId: string;
 }
 
 const protect = (
@@ -27,10 +25,13 @@ const protect = (
             token = req.headers.authorization.split(" ")[1];
 
             // Verify token
-            const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+            const decoded = jwt.verify(
+                token,
+                process.env.ACCESS_TOKEN_SECRET,
+            ) as JwtPayload;
 
             // Attach user data to request
-            req.user = { id: decoded.id };
+            req.user = { id: decoded.userId };
             next();
         } catch (error) {
             throw new UnauthorizedError("Not authorized, token failed");

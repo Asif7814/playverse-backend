@@ -266,6 +266,48 @@ const resetPassword = async (resetToken: string, newPassword: string) => {
     return user;
 };
 
+const updatePassword = async (
+    id: string,
+    oldPassword: string,
+    newPassword: string,
+) => {
+    const user = await User.findById(id);
+
+    // Check if user exists
+    if (!user) {
+        throw new NotFoundError("User not found");
+    }
+
+    // Ensure user account is active
+    if (user.accountStatus !== "active") {
+        throw new BadRequestError(
+            "Cannot update password for inactive accounts",
+        );
+    }
+
+    // Compare passwords to verify user
+    const validPassword = await authUtils.comparePasswords(
+        oldPassword,
+        user.password,
+    );
+
+    if (!validPassword) {
+        throw new BadRequestError("Incorrect old password. Please try again");
+    }
+
+    // Validate password
+    authUtils.validatePassword(newPassword);
+
+    // Hash password
+    const hashedPassword = await authUtils.hashPassword(newPassword);
+
+    // Set new password
+    user.password = hashedPassword;
+    await user.save();
+
+    return user;
+};
+
 export default {
     registerUser,
     verifyUser,
@@ -275,4 +317,5 @@ export default {
     forgotPassword,
     verifyOTP,
     resetPassword,
+    updatePassword,
 };
