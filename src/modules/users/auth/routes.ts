@@ -12,4 +12,6 @@ authUserRouter.post("/login", authUserController.loginUser);
 
 authUserRouter.post("/logout", authUserController.logoutUser);
 
+authUserRouter.post("/refresh-token", authUserController.refreshToken);
+
 export default authUserRouter;

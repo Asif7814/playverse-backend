@@ -143,4 +143,53 @@ const logoutUser = async (refreshToken: string) => {
     return user;
 };
 
-export default { registerUser, verifyUser, loginUser, logoutUser };
+const refreshToken = async (refreshToken: string) => {
+    // Get user ID from Redis
+    const userId = await redisUtils.getRefreshToken(refreshToken);
+    if (!userId) throw new UnauthorizedError("Invalid refresh token");
+
+    // Find the user associated with the refresh token
+    const user = await User.findById(userId);
+
+    // Check if user exists
+    if (!user) {
+        throw new NotFoundError("User not found");
+    }
+
+    // Check if user's account is active
+    if (user.accountStatus === "PENDING") {
+        throw new BadRequestError("Please complete account verification");
+    }
+
+    if (user.accountStatus === "DEACTIVATED") {
+        throw new BadRequestError(
+            "Your account has been deactivated. Reactivate it to refresh token",
+        );
+    }
+
+    // Verify refresh token
+    const decoded = tokenService.verifyToken(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET,
+    );
+
+    // Clear old refresh token from Redis
+    await redisUtils.clearRefreshToken(refreshToken);
+
+    // Generate new tokens
+    const newAccessToken = tokenService.generateAccessToken(decoded.userId);
+    const newRefreshToken = tokenService.generateRefreshToken(decoded.userId);
+
+    // Cache a new refresh token in Redis
+    await redisUtils.setRefreshToken(user.id, newRefreshToken);
+
+    return { user, newAccessToken, newRefreshToken };
+};
+
+export default {
+    registerUser,
+    verifyUser,
+    loginUser,
+    logoutUser,
+    refreshToken,
+};

@@ -89,4 +89,36 @@ const logoutUser: Controller = async (req, res, next) => {
     }
 };
 
-export default { registerUser, verifyUser, loginUser, logoutUser };
+const refreshToken: Controller = async (req, res, next) => {
+    try {
+        const { refreshToken } = req.body;
+
+        const { user, newAccessToken, newRefreshToken } =
+            await authService.refreshToken(refreshToken);
+
+        console.log("User token refreshed", { user });
+        console.log("Access token", { accessToken: newAccessToken });
+        console.log("Refresh token", { refreshToken: newRefreshToken });
+
+        res.status(200).json({
+            message: "Token refreshed successfully.",
+            data: {
+                user,
+                tokens: {
+                    accessToken: newAccessToken,
+                    refreshToken: newRefreshToken,
+                },
+            },
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export default {
+    registerUser,
+    verifyUser,
+    loginUser,
+    logoutUser,
+    refreshToken,
+};
