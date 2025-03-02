@@ -205,6 +205,29 @@ const forgotPassword = async (email: string) => {
     return { user, otp };
 };
 
+const verifyOTP = async (otp: number) => {
+    // Find user ID by OTP in Redis
+    const userId = await redisUtils.getOTP(otp);
+    if (!userId) throw new NotFoundError("OTP is invalid or has expired");
+
+    // Check if user exists
+    const user = await User.findById(userId);
+    if (!user) throw new NotFoundError("User not found");
+
+    // Ensure user account is active
+    if (user.accountStatus !== "active")
+        throw new BadRequestError("Cannot verify OTP for inactive accounts");
+
+    const resetToken = tokenService.generateAccessToken(user.id); // lasts 15 minutes
+
+    // Save reset token in Redis
+    await redisUtils.setResetToken(user.id, resetToken);
+
+    await redisUtils.clearOTP(otp);
+
+    return { user, resetToken };
+};
+
 export default {
     registerUser,
     verifyUser,
@@ -212,4 +235,5 @@ export default {
     logoutUser,
     refreshToken,
     forgotPassword,
+    verifyOTP,
 };

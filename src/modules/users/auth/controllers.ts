@@ -133,6 +133,24 @@ const forgotPassword: Controller = async (req, res, next) => {
     }
 };
 
+const verifyOTP: Controller = async (req, res, next) => {
+    try {
+        const { otp } = req.body;
+
+        const { user, resetToken } = await authService.verifyOTP(otp);
+
+        console.log("OTP verified. User:", user);
+        console.log("OTP verified. ResetToken:", resetToken);
+
+        res.status(200).json({
+            message: "OTP verified successfully.",
+            data: { user, tokens: { resetToken } },
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
     registerUser,
     verifyUser,
@@ -140,4 +158,5 @@ export default {
     logoutUser,
     refreshToken,
     forgotPassword,
+    verifyOTP,
 };

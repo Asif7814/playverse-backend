@@ -16,4 +16,6 @@ authUserRouter.post("/refresh-token", authUserController.refreshToken);
 
 authUserRouter.post("/forgot-password", authUserController.forgotPassword);
 
+authUserRouter.post("/verify-otp", authUserController.verifyOTP);
+
 export default authUserRouter;
