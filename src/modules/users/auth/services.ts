@@ -376,6 +376,21 @@ const replaceEmail = async (otp: number) => {
     return { user, previousEmail };
 };
 
+const requestAccountDeactivation = async (id: string) => {
+    const user = await User.findById(id);
+
+    // Check if user exists and account is active
+    if (!user || user.accountStatus !== "active") {
+        throw new NotFoundError("User not found or account is not active");
+    }
+
+    // Generate OTP for account deactivation
+    const otp = authUtils.generateOTP();
+    await redisUtils.setOTP(user.id, otp);
+
+    return { user, otp };
+};
+
 export default {
     registerUser,
     verifyUser,
@@ -388,4 +403,5 @@ export default {
     updatePassword,
     updateEmail,
     replaceEmail,
+    requestAccountDeactivation,
 };

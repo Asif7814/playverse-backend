@@ -31,4 +31,10 @@ authUserRouter.post("/update-email", protect, authUserController.updateEmail);
 
 authUserRouter.post("/replace-email", protect, authUserController.replaceEmail);
 
+authUserRouter.post(
+    "/request-account-deactivation",
+    protect,
+    authUserController.requestAccountDeactivation,
+);
+
 export default authUserRouter;
