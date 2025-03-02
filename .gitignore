@@ -12,3 +12,7 @@ node_modules/
 
 # Build Output
 dist/
+tsconfig.tsbuildinfo
+
+# Log Files
+logs/

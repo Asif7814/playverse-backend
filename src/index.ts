@@ -6,7 +6,12 @@ import "dotenv/config";
 
 import { connectDB } from "./config/db.js";
 import sanitizeBody from "./middlewares/sanitizeBody.js";
-import tempRouter from "./modules/temps/routes.js";
+
+import authUserRouter from "./modules/users/auth/routes.js";
+import userRouter from "./modules/users/routes.js";
+import gameRouter from "./modules/games/routes.js";
+import userGameRouter from "./modules/userGames/routes.js";
+
 import errorHandler from "./utils/errors.js";
 
 const app = express();
@@ -25,7 +30,10 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 // ROUTES
-app.use("/api/temp", tempRouter);
+app.use("/auth/users", authUserRouter);
+app.use("/api/users", userRouter);
+app.use("/api/games", gameRouter);
+app.use("/api/userGames", userGameRouter);
 
 app.use(errorHandler);
 
