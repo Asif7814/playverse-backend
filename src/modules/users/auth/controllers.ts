@@ -151,6 +151,23 @@ const verifyOTP: Controller = async (req, res, next) => {
     }
 };
 
+const resetPassword: Controller = async (req, res, next) => {
+    try {
+        const { resetToken, newPassword } = req.body;
+
+        const user = await authService.resetPassword(resetToken, newPassword);
+
+        console.log("User reset password:", user);
+
+        res.status(200).json({
+            message: "Password reset successfully.",
+            data: { user },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export default {
     registerUser,
     verifyUser,
@@ -159,4 +176,5 @@ export default {
     refreshToken,
     forgotPassword,
     verifyOTP,
+    resetPassword,
 };

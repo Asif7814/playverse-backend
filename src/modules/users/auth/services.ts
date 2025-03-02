@@ -228,6 +228,44 @@ const verifyOTP = async (otp: number) => {
     return { user, resetToken };
 };
 
+const resetPassword = async (resetToken: string, newPassword: string) => {
+    if (!resetToken) throw new BadRequestError("Missing reset token");
+
+    // Find user ID by Reset Token in Redis
+    const userId = await redisUtils.getResetToken(resetToken);
+    if (!userId)
+        throw new NotFoundError("Reset Token is invalid or has expired");
+
+    const user = await User.findById(userId);
+
+    // Check if user exists
+    if (!user) {
+        throw new NotFoundError("User not found");
+    }
+
+    // Ensure user account is active
+    if (user.accountStatus !== "active") {
+        throw new BadRequestError(
+            "Cannot reset password for inactive accounts",
+        );
+    }
+
+    // Validate password
+    authUtils.validatePassword(newPassword);
+
+    // Hash password
+    const hashedPassword = await authUtils.hashPassword(newPassword);
+
+    // Set new password
+    user.password = hashedPassword;
+    await user.save();
+
+    // Clear reset token from Redis
+    await redisUtils.clearResetToken(resetToken);
+
+    return user;
+};
+
 export default {
     registerUser,
     verifyUser,
@@ -236,4 +274,5 @@ export default {
     refreshToken,
     forgotPassword,
     verifyOTP,
+    resetPassword,
 };
