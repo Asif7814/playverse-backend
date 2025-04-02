@@ -16,7 +16,7 @@ Add and organize games in your personal library to easily keep track of what you
 
 Discover new titles tailored to your interests and explore trending games.
 
-### 3. AI Chat Assistant
+### 3. AI Chat Assistant (Not Yet Implemented)
 
 Get personalized game recommendations, compare games, and engage in conversations to help you decide what to play next.
 
